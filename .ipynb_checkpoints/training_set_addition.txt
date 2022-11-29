@@ -8,3 +8,13 @@ Patrick-sample6.wav
 Patrick-sample7.wav
 Patrick-sample8.wav
 Patrick-sample9.wav
+Jason-sample0.wav
+Jason-sample1.wav
+Jason-sample2.wav
+Jason-sample3.wav
+Jason-sample4.wav
+Jason-sample5.wav
+Jason-sample6.wav
+Jason-sample7.wav
+Jason-sample8.wav
+Jason-sample9.wav
