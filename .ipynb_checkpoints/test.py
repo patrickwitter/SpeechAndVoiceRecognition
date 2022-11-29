@@ -1,7 +1,5 @@
-# Might not be up to date with .ipynb file (is up to date as of Nov 29 2022)
-
 Password = None
-USER= None
+USER = None
 # import required libraries
 import sounddevice as sd
 from scipy.io.wavfile import write
@@ -105,7 +103,7 @@ def record_audio_train():
   global USER
   Name =(input("Please Enter Your Name:"))
   USER = Name
-  TIMES = 10
+  TIMES = 20
   audio, sr = get_audio()
   for count in range(TIMES):
     print("Record Voice ",count + 1,"/",TIMES)
@@ -126,44 +124,70 @@ def record_audio_test(audio,sr):
   trainedfilelist = open("testing_set_addition.txt", 'a')
   trainedfilelist.write(OUTPUT_FILENAME+"\n")
   scipy.io.wavfile.write(	OUTPUT_FILENAME, sr, audio)
-def train_model():
 
+def train_model():
+  #What we want to do is for each speaker to have their own model
   train_file = "training_set_addition.txt"        
   file_paths = open(train_file,'r')
-  count = 1
   features = np.asarray(())
-  for path in file_paths:    
-      path = path.strip()   
-    #   print(path)
+  epochs = 100
+  speakers = set() # set of speakers
+  for path0 in file_paths:
+    speakers.add(path0.split("-")[0])
+  print("---------------Speakers-----------------",speakers)
+  choice = int(input("1. Train for all speakers 2. Train for specific Speaker"))
+  if choice == 2:
+    speakers = list(speakers)
+    # print("speakers new",speakers)
+    for i in range(len(speakers)):
+      print(i+1,"Name:",speakers[i])
+    spC = int(input("Choose the number next to your speaker"))
+    x = []
+    x.append(speakers[spC-1])
+    speakers = x.copy()
+    # print("speakers new2",speakers)
+    
+    
+  for speaker in speakers:
+    # print("In loop-----------",speaker)
+    for e in range(epochs):
+      file_paths2 = open(train_file,'r')
+      print("Training for Sepeaker--",speaker,"In epoch",e)
+      for path in file_paths2: 
 
-      sr,audio = read(path)
-    #   print(sr)
-      vector   = extract_features(audio,sr)
-      
-      if features.size == 0:
-          features = vector
-      else:
-          features = np.vstack((features, vector))
+          s =  path.split("-")[0]
+          # print("Speaker-----------",speaker,"s-----------",s)
+          if (s == speaker):
+            # print("In second loop")  
+            path = path.strip()   
+            # print("-----------------------------------------------",path)
 
-    # if count == 5:    
-  gmm = GaussianMixture(n_components = 6, max_iter = 200, covariance_type='diag',n_init = 3)
-  gmm.fit(features)
+            sr,audio = read(path)
+          #   print(sr)
+            vector   = extract_features(audio,sr)
+            
+            if features.size == 0:
+                features = vector
+            else:
+                features = np.vstack((features, vector))
+
+    
+    gmm = GaussianMixture(n_components = 6, max_iter = 200, covariance_type='diag',n_init = 3)
+    gmm.fit(features)
   
   # dumping the trained gaussian model
-  picklefile = path.split("-")[0]+".gmm"
-  print("-----------------Model File PATH-------------------",picklefile)
-  pickle.dump(gmm,open(picklefile,'wb'))
-  print('+ modeling completed for speaker:',picklefile," with data point = ",features.shape)   
-  features = np.asarray(())
-  # count = 0
-    # count = count + 1
-  print("-----------------count-----------",count)
+    picklefile = speaker+".gmm"
+    print("-----------------Model File PATH-------------------",picklefile)
+    pickle.dump(gmm,open(picklefile,'wb'))
+    print('+ modeling completed for speaker:',picklefile," with data point = ",features.shape)   
+    features = np.asarray(())
+ 
 def test_model(audio,sr):
   if audio is None and sr is None:
-    print("---------------------Above record test----------------------")
+    # print("---------------------Above record test----------------------")
     record_audio_test(None,None)
   else:
-    print("---------------------Audio Given----------------------")
+    # print("---------------------Audio Given----------------------")
     record_audio_test(audio,sr)
 
   test_file = "testing_set_addition.txt"      
@@ -171,10 +195,10 @@ def test_model(audio,sr):
     
   gmm_files = [fname for fname in
                 os.listdir() if fname.endswith('.gmm')]
-  print("-------------------Length of Files------------------------",len(gmm_files))  
+  # print("-------------------Length of Files------------------------",len(gmm_files))  
   #Load the Gaussian gender Models
   models    = [pickle.load(open(fname,'rb')) for fname in gmm_files]
-  print("-------------------Length of Models------------------------",len(models)) 
+  # print("-------------------Length of Models------------------------",len(models)) 
   speakers   = [fname.split("\\")[-1].split(".gmm")[0] for fname 
                 in gmm_files]
     
@@ -192,7 +216,9 @@ def test_model(audio,sr):
           gmm    = models[i]  #checking with each model one by one
           scores = np.array(gmm.score(vector))
           log_likelihood[i] = scores.sum()
-        
+      
+      for i in range(len(models)):
+        print("likely-hood of speaker",speakers[i],"--------------",log_likelihood[i])  
       winner = np.argmax(log_likelihood)
       print("\tdetected as - ", speakers[winner])
       return speakers[winner]
@@ -217,8 +243,11 @@ def checkPassword():
     print("Password correct. User false, you are ",user)
   elif (Password != password and user == USER and Password != None):
     print("Hey you are correct user",user," but your password is incorrect")
+  elif (Password != password and user != USER):
+    print("Neither your password is correct and your not the correct user")
   else:
      print("Hey you are correct user",user," but your password is not set")
+  
   
 #Menu 
 while True:
