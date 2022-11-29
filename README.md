@@ -5,3 +5,4 @@ pip install -r requirements.txt
 If you add any dependencies run
 pip freeze > requirements.txt
 Before pushing
+The test.py is just for running just in case you don't want to use a notebook ensure that both files are up to date
