@@ -18,3 +18,13 @@ Jason-sample6.wav
 Jason-sample7.wav
 Jason-sample8.wav
 Jason-sample9.wav
+Kieran-sample0.wav
+Kieran-sample1.wav
+Kieran-sample2.wav
+Kieran-sample3.wav
+Kieran-sample4.wav
+Kieran-sample5.wav
+Kieran-sample6.wav
+Kieran-sample7.wav
+Kieran-sample8.wav
+Kieran-sample9.wav
